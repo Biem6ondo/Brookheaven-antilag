@@ -1,0 +1,138 @@
+local player = game.Players.LocalPlayer
+local existingGui = player.PlayerGui:FindFirstChild("MyGUI")
+
+if existingGui then
+    existingGui:Destroy()
+end
+
+local SG = Instance.new("ScreenGui", player.PlayerGui)
+SG.Name = "MyGUI"
+
+local F = Instance.new("Frame", SG)
+F.Name = "MainFrame"
+F.Size = UDim2.new(0.5, 0, 0.5, 0)
+F.Position = UDim2.new(0.25, 0, 0.25, 0)
+F.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+F.BorderSizePixel = 0
+F.ClipsDescendants = true
+
+local UICorner = Instance.new("UICorner", F)
+UICorner.CornerRadius = UDim.new(0, 10)
+
+local T = Instance.new("TextLabel", F)
+T.Name = "Title"
+T.Size = UDim2.new(1, 0, 0.1, 0)
+T.Position = UDim2.new(0, 0, 0, 0)
+T.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+T.Text = "Are You Sure?"
+T.TextColor3 = Color3.fromRGB(255, 255, 255)
+T.TextScaled = true
+T.TextStrokeTransparency = 0.8
+
+local CloseBtn = Instance.new("TextButton", F)
+CloseBtn.Name = "CloseButton"
+CloseBtn.Size = UDim2.new(0.1, 0, 0.1, 0)
+CloseBtn.Position = UDim2.new(0.9, 0, 0, 0)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+CloseBtn.Text = "❌"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.TextScaled = true
+
+local UICornerButton = Instance.new("UICorner", CloseBtn)
+UICornerButton.CornerRadius = UDim.new(0, 10)
+
+local InfoLabel = Instance.new("TextLabel", F)
+InfoLabel.Name = "InfoLabel"
+InfoLabel.Size = UDim2.new(1, 0, 0.8, 0)
+InfoLabel.Position = UDim2.new(0, 0, 0.1, 0)
+InfoLabel.BackgroundTransparency = 1
+InfoLabel.Text = "Script is in testing\n Comment on ScriptBlox if there are any errors!"
+InfoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+InfoLabel.TextSize = 15
+
+local ButtonContainer = Instance.new("Frame", F)
+ButtonContainer.Name = "ButtonContainer"
+ButtonContainer.Size = UDim2.new(1, 0, 0.1, 0)
+ButtonContainer.Position = UDim2.new(0, 0, 0.9, 0)
+ButtonContainer.BackgroundTransparency = 1
+
+local YesBtn = Instance.new("TextButton", ButtonContainer)
+YesBtn.Name = "YesButton"
+YesBtn.Size = UDim2.new(0.45, 0, 1, 0)
+YesBtn.Position = UDim2.new(0.05, 0, 0, 0)
+YesBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+YesBtn.Text = "Wait 2s"
+YesBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+YesBtn.TextScaled = true
+YesBtn.Active = false
+
+local UICornerYes = Instance.new("UICorner", YesBtn)
+UICornerYes.CornerRadius = UDim.new(0, 10)
+
+local NoBtn = Instance.new("TextButton", ButtonContainer)
+NoBtn.Name = "NoButton"
+NoBtn.Size = UDim2.new(0.45, 0, 1, 0)
+NoBtn.Position = UDim2.new(0.5, 0, 0, 0)
+NoBtn.BackgroundColor3 = Color3.fromRGB(250, 0, 0)
+NoBtn.Text = "No"
+NoBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+NoBtn.TextScaled = true
+
+local UICornerNo = Instance.new("UICorner", NoBtn)
+UICornerNo.CornerRadius = UDim.new(0, 10)
+
+local function flashButton(btn, color)
+    local originalColor = btn.BackgroundColor3
+    btn.BackgroundColor3 = color
+    task.wait(0.2)
+    btn.BackgroundColor3 = originalColor
+end
+
+local function enableYesButton()
+    for i = 2.5, 0, -0.1 do
+        YesBtn.Text = "Wait " .. i .. "s"
+        task.wait(0.05)
+    end
+    YesBtn.Text = "Yes"
+    YesBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    YesBtn.Active = true
+end
+
+YesBtn.MouseButton1Click:Connect(function()
+    if YesBtn.Active then
+        flashButton(YesBtn, Color3.fromRGB(0, 200, 0))
+        -- Brook
+for _, obj in pairs(game.Workspace:GetDescendants()) do
+    local name = obj.Name:lower()
+    local targetNames = {"newmeshplant", "plant", "plant2", "plantnew", "bread", "presentbirthdayballoon", "greenplant", "tree", "streetlight", "streetlightmesh", "firehydrant", "newtree", "streetsigns", "commercialstorage2", "commercialstorage1", "plant3", "camerafake", "blackpolemesh", "motelsigns", "motelsign", "star", "lifguardchair", "plantsimple", "flower", "3bvlock", "001_allsigns", "flowerred", "flowergreen", "flowerpurple", "ceditcard", "shampoo", "neon", "handles", "cab", "treebottom", "ibeam", "littlemountain", "trees", "treenew", "box", "arch01", "arch02", "horsefence", "barnhay", "horsejump", "cropland", "stem", "rock", "zzz", "sign", "pole", "ballons", "string", "monitor", "policetrim", "cube.005", "4blocks", "pillars", "tri", "lawnlightnew", "freewayangle", "hairnails", "newround", "centertable", "fake", "cubdoors", "paperbell", "church", "fencedrone", "communitysignsmall", "trashcanbig", "posts", "dirt", "yatchtnew", "green", "tirerack", "busstop", "snowmountain", "garbagecan", "ripdone", "cemetery", "megalight", "1111", "cone", "solorpanels", "campfire", "001_campfires", "", "plantdecimate", "yard", "bush", "wood", "blanket", "dresser", "poles2x3", "dark", "heart", "sugar", "firedoor", "cube.007", "fakelight", "shelf", "picturenew", "001_alarmlight2", "001_alarmlight", "2poles", "lightswitch8", "ripwolfpaq", "tunnellightfake", "neonno", "lightfake", "garagedoorframe"} 
+    for _, targetName in ipairs(targetNames) do
+        if name == targetName then
+            obj:Destroy()
+        end
+    end
+end
+for _, part in pairs(workspace:GetDescendants()) do
+    if part:IsA("BasePart") then
+        part.Material = Enum.Material.Plastic
+        for _, child in pairs(part:GetChildren()) do
+            if child:IsA("Decal") or child:IsA("Texture") or child:IsA("SurfaceGui") then
+                child:Destroy()
+            end
+        end
+    end
+end
+SG:Destroy()
+end
+end)
+
+NoBtn.MouseButton1Click:Connect(function()
+    SG:Destroy()
+end)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    F:TweenPosition(UDim2.new(0.25, 0, 1, 0), "Out", "Quad", 0.5)
+    wait(0.5)
+    SG:Destroy()
+end)
+
+task.spawn(enableYesButton)
