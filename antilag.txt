@@ -1,3 +1,5 @@
+-- If you protect the source, it will make the execution laggier.
+
 for _, obj in pairs(game.Workspace:GetDescendants()) do
     local name = obj.Name:lower()
     local targetNames = {
