@@ -1,4 +1,5 @@
 -- If you protect the source, it will make the execution laggier.
+print("V0.3")
 
 for _, obj in pairs(game.Workspace:GetDescendants()) do
     local name = obj.Name:lower()
@@ -131,7 +132,7 @@ task.spawn(function()
         for part, data in pairs(hiddenParts) do
             if part and part.Parent then
                 local distance = (hrp.Position - part.Position).Magnitude
-                if distance <= 100 then
+                if distance <= 250 then
                     part.Transparency = data.Transparency
                     part.CanCollide = data.CanCollide
                 else
@@ -140,7 +141,7 @@ task.spawn(function()
                 end
             end
         end
-        task.wait(3.5)
+        task.wait(1.75)
     end
 end)
 
