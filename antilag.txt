@@ -1,0 +1,175 @@
+for _, obj in pairs(game.Workspace:GetDescendants()) do
+    local name = obj.Name:lower()
+    local targetNames = {
+        "newmeshplant", "plant", "plant2", "plantnew", "bread", "presentbirthdayballoon", 
+        "greenplant", "tree", "streetlight", "streetlightmesh", "firehydrant", "newtree", 
+        "streetsigns", "commercialstorage2", "commercialstorage1", "plant3", "camerafake", 
+        "blackpolemesh", "motelsigns", "motelsign", "star", "lifguardchair", "plantsimple", 
+        "flower", "3bvlock", "001_allsigns", "flowerred", "flowergreen", "flowerpurple", 
+        "ceditcard", "shampoo", "neon", "handles", "cab", "treebottom", "ibeam", 
+        "littlemountain", "trees", "treenew", "box", "arch01", "arch02", "horsefence", 
+        "barnhay", "horsejump", "cropland", "stem", "rock", "zzz", "sign", "pole", "ballons", 
+        "string", "monitor", "policetrim", "4blocks", "pillars", "tri", 
+        "lawnlightnew", "freewayangle", "hairnails", "newround", "centertable", "fake", 
+        "cubdoors", "paperbell", "church", "fencedrone", "communitysignsmall", "trashcanbig", 
+        "posts", "dirt", "yatchtnew", "green", "tirerack", "busstop", "snowmountain", 
+        "garbagecan", "ripdone", "cemetery", "megalight", "1111", "cone", "solorpanels", 
+        "campfire", "001_campfires", "", "plantdecimate", "yard", "bush", "wood", "blanket", 
+        "dresser", "poles2x3", "dark", "heart", "sugar", "firedoor", "cube.007", "fakelight", 
+        "shelf", "picturenew", "001_alarmlight2", "001_alarmlight", "2poles", "lightswitch8", 
+        "ripwolfpaq", "tunnellightfake", "neonno", "lightfake", "garagedoorframe", "jobgivers", "doll", "grocery", "agencyredbook"
+    }
+    for _, targetName in ipairs(targetNames) do
+        if name == targetName then
+            obj:Destroy()
+        end
+    end
+end
+
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local TextButton = Instance.new("TextButton", ScreenGui)
+
+TextButton.Size = UDim2.new(0, 400, 0, 70)
+TextButton.Position = UDim2.new(0.5, -200, 0, 10)
+TextButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextButton.TextScaled = true
+TextButton.Text = "Counting MeshPart..."
+TextButton.AutoButtonColor = false
+
+task.wait(2)
+
+local countSize, countCollide = 0, 0
+
+local function isPlayerPart(part)
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character and part:IsDescendantOf(player.Character) then
+            return true
+        end
+    end
+    return false
+end
+
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("MeshPart") and not isPlayerPart(v) then
+        if v:FindFirstChildOfClass("TouchInterest") or v:FindFirstChildOfClass("ProximityPrompt") then
+            continue
+        end
+        if v.Size.X < 0.3 and v.Size.Y < 0.3 and v.Size.Z < 0.3 then
+            countSize += 1
+            v:Destroy()
+        elseif not v.CanCollide then
+            countCollide += 1
+            v:Destroy()
+        end
+    end
+end
+
+TextButton.Text = "Deleted MeshPart > 0.3 Size: " .. countSize ..
+                 "\nDeleted MeshPart Can't Collide: " .. countCollide ..
+                 "\nClick Here To Close\n Wait for it to finish rendering! "
+
+TextButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+local lot = workspace:FindFirstChild("001_Lots")
+if not lot then return end
+
+local hiddenParts = {}
+
+local function hidePart(part)
+    if part:IsA("BasePart") and not hiddenParts[part] then
+        hiddenParts[part] = {
+            Transparency = part.Transparency,
+            CanCollide = part.CanCollide
+        }
+        part.Transparency = 1
+        part.CanCollide = false
+    end
+end
+
+local function updateParts()
+    for _, model in ipairs(lot:GetChildren()) do
+        if model:IsA("Model") then
+            for _, part in ipairs(model:GetDescendants()) do
+                hidePart(part)
+            end
+        end
+    end
+end
+
+updateParts()
+
+lot.ChildAdded:Connect(function(child)
+    if child:IsA("Model") then
+        for _, part in ipairs(child:GetDescendants()) do
+            hidePart(part)
+        end
+    end
+end)
+
+lot.DescendantAdded:Connect(hidePart)
+
+local player = game.Players.LocalPlayer
+
+local function updateHRP()
+    local character = player.Character or player.CharacterAdded:Wait()
+    return character:WaitForChild("HumanoidRootPart")
+end
+
+local hrp = updateHRP()
+
+player.CharacterAdded:Connect(function()
+    hrp = updateHRP()
+end)
+
+task.spawn(function()
+    while true do
+        for part, data in pairs(hiddenParts) do
+            if part and part.Parent then
+                local distance = (hrp.Position - part.Position).Magnitude
+                if distance <= 100 then
+                    part.Transparency = data.Transparency
+                    part.CanCollide = data.CanCollide
+                else
+                    part.Transparency = 1
+                    part.CanCollide = false
+                end
+            end
+        end
+        task.wait(3.5)
+    end
+end)
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+local Player = Players.LocalPlayer
+local ScreenGui = Instance.new("ScreenGui", Player:FindFirstChildOfClass("PlayerGui"))
+local TextLabel = Instance.new("TextLabel", ScreenGui)
+
+TextLabel.Size = UDim2.new(0, 250, 0, 70)
+TextLabel.Position = UDim2.new(0, 10, 0, 10)
+TextLabel.BackgroundTransparency = 0.5
+TextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+TextLabel.TextColor3 = Color3.new(1, 1, 1)
+TextLabel.TextSize = 18
+TextLabel.Font = Enum.Font.SourceSansBold
+TextLabel.Text = "FPS:999999999\nHI: 99999999999\nLow: 9999999999"
+
+local fps = 0
+local maxFPS = 0
+local minFPS = math.huge
+
+RunService.RenderStepped:Connect(function()
+    fps = fps + 1
+end)
+
+while true do
+    TextLabel.Text = "FPS: " .. fps .. "\nHI: " .. maxFPS .. "\nLow: " .. minFPS
+    if fps > maxFPS then maxFPS = fps end
+    if fps < minFPS then minFPS = fps end
+    fps = 0
+    wait(1)
+end
