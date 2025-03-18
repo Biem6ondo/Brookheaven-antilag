@@ -1,5 +1,36 @@
--- If you protect the source, it will make the execution laggier.
-print("V0.3")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+
+local function isPlayerCharacter(instance)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Character and instance:IsDescendantOf(player.Character) then
+            return true
+        end
+    end
+    return false
+end
+
+local function onDescendantAdded(v)
+    if not v.Parent or v:IsDescendantOf(Players) then return end
+
+    if not isPlayerCharacter(v) then
+        if v:IsA("BasePart") then
+            pcall(function() v.Material = Enum.Material.SmoothPlastic end)
+        elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("ParticleEmitter") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles") then
+            task.delay(0.1, function()
+                if v.Parent then
+                    pcall(function() v:Destroy() end)
+                end
+            end)
+        end
+    end
+end
+
+for _, v in ipairs(Workspace:GetDescendants()) do
+    onDescendantAdded(v)
+end
+
+Workspace.DescendantAdded:Connect(onDescendantAdded)
 
 for _, obj in pairs(game.Workspace:GetDescendants()) do
     local name = obj.Name:lower()
@@ -17,10 +48,10 @@ for _, obj in pairs(game.Workspace:GetDescendants()) do
         "cubdoors", "paperbell", "church", "fencedrone", "communitysignsmall", "trashcanbig", 
         "posts", "dirt", "yatchtnew", "green", "tirerack", "busstop", "snowmountain", 
         "garbagecan", "ripdone", "cemetery", "megalight", "1111", "cone", "solorpanels", 
-        "campfire", "001_campfires", "", "plantdecimate", "yard", "bush", "wood", "blanket", 
+        "campfire", "001_campfires", "plantdecimate", "yard", "bush", "wood", "blanket", 
         "dresser", "poles2x3", "dark", "heart", "sugar", "firedoor", "cube.007", "fakelight", 
         "shelf", "picturenew", "001_alarmlight2", "001_alarmlight", "2poles", "lightswitch8", 
-        "ripwolfpaq", "tunnellightfake", "neonno", "lightfake", "garagedoorframe", "jobgivers", "doll", "grocery", "agencyredbook"
+        "ripwolfpaq", "tunnellightfake", "neonno", "lightfake", "jobgivers", "doll", "grocery", "agencyredbook"
     }
     for _, targetName in ipairs(targetNames) do
         if name == targetName then
@@ -70,7 +101,7 @@ end
 
 TextButton.Text = "Deleted MeshPart > 0.3 Size: " .. countSize ..
                  "\nDeleted MeshPart Can't Collide: " .. countCollide ..
-                 "\nClick Here To Close\n Wait for it to finish rendering! "
+                 "\nClick Here To Close\n Wait for it to finish rendering!\nV0.3 "
 
 TextButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
@@ -132,7 +163,7 @@ task.spawn(function()
         for part, data in pairs(hiddenParts) do
             if part and part.Parent then
                 local distance = (hrp.Position - part.Position).Magnitude
-                if distance <= 250 then
+                if distance <= 200 then
                     part.Transparency = data.Transparency
                     part.CanCollide = data.CanCollide
                 else
@@ -141,7 +172,85 @@ task.spawn(function()
                 end
             end
         end
-        task.wait(1.75)
+        task.wait(2)
+    end
+end)
+
+local lot = workspace:FindFirstChild("Model")
+if not lot then return end
+
+local player = game.Players.LocalPlayer
+local hrp = nil
+
+local function updateHRP()
+    local character = player.Character or player.CharacterAdded:Wait()
+    return character:WaitForChild("HumanoidRootPart")
+end
+
+hrp = updateHRP()
+player.CharacterAdded:Connect(function() hrp = updateHRP() end)
+
+local hiddenParts = {}
+local activeParts = {}
+local viewDistance = 125
+local checkInterval = 0.25
+
+local function hidePart(part)
+    if (part:IsA("BasePart") or part:IsA("MeshPart")) and not part:GetAttribute("Hidden") then
+        if part.Size.Magnitude >= 125 then return end
+
+        part:SetAttribute("Hidden", true)
+        part:SetAttribute("OriginalTransparency", part.Transparency)
+        part:SetAttribute("OriginalCollide", part.CanCollide)
+
+        part.Transparency = 1    
+        part.CanCollide = false
+        hiddenParts[part] = true
+    end
+end
+
+for _, obj in ipairs(lot:GetDescendants()) do
+    if obj:IsA("BasePart") or obj:IsA("MeshPart") then
+        hidePart(obj)
+    end
+end
+
+lot.DescendantAdded:Connect(function(obj)
+    if obj:IsA("BasePart") or obj:IsA("MeshPart") then
+        hidePart(obj)
+    end
+end)
+
+local RunService = game:GetService("RunService")
+local lastCheck = 0
+
+RunService.Heartbeat:Connect(function(deltaTime)
+    if hrp then
+        local cf = hrp.Position
+        lastCheck = lastCheck + deltaTime
+        if lastCheck >= checkInterval then
+            lastCheck = 0
+
+            local newActiveParts = {}
+
+            for part in pairs(hiddenParts) do
+                local dist = (part.Position - cf).Magnitude
+                if dist < viewDistance then
+                    if not activeParts[part] then
+                        part.Transparency = part:GetAttribute("OriginalTransparency") or 0
+                        part.CanCollide = part:GetAttribute("OriginalCollide") or false
+                        part:SetAttribute("Visible", true)
+                    end
+                    newActiveParts[part] = true
+                elseif activeParts[part] then
+                    part.Transparency = 1    
+                    part.CanCollide = false    
+                    part:SetAttribute("Visible", false)
+                end
+            end
+
+            activeParts = newActiveParts
+        end
     end
 end)
 
@@ -150,6 +259,8 @@ local Players = game:GetService("Players")
 
 local Player = Players.LocalPlayer
 local ScreenGui = Instance.new("ScreenGui", Player:FindFirstChildOfClass("PlayerGui"))
+ScreenGui.ResetOnSpawn = false
+
 local TextLabel = Instance.new("TextLabel", ScreenGui)
 
 TextLabel.Size = UDim2.new(0, 250, 0, 70)
