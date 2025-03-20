@@ -1,3 +1,103 @@
+local UpdateContent = [[
+*Current Version: 
+v0.4.1
+- Optimized render loop
+- Reduced Distance for smoother performance
+
+Warning!
+There are still some bugs, this may happen for a few minutes. I WILL FIX IT SOON!
+]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0.7, 0, 0.7, 0)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.BorderSizePixel = 0
+frame.ClipsDescendants = true
+
+local uiCorner = Instance.new("UICorner", frame)
+uiCorner.CornerRadius = UDim.new(0, 10)
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "UPDATE"
+title.TextSize = 22
+title.Font = Enum.Font.SourceSansBold
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local content = Instance.new("TextLabel", frame)
+content.Size = UDim2.new(1, -20, 0.7, 0)
+content.Position = UDim2.new(0, 10, 0, 50)
+content.BackgroundTransparency = 1
+content.Text = UpdateContent
+content.TextXAlignment = Enum.TextXAlignment.Left content.TextYAlignment = Enum.TextYAlignment.Top
+content.TextSize = 24
+content.Font = Enum.Font.SourceSans
+content.TextColor3 = Color3.fromRGB(200, 200, 200)
+content.TextWrapped = true
+
+local okButton = Instance.new("TextButton", frame)
+okButton.Size = UDim2.new(0.4, 0, 0, 35)
+okButton.Position = UDim2.new(0.3, 0, 1, -50)
+okButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+okButton.Text = "OK"
+okButton.TextSize = 18
+okButton.Font = Enum.Font.SourceSansBold
+okButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local okCorner = Instance.new("UICorner", okButton)
+okCorner.CornerRadius = UDim.new(0, 5)
+
+local toggleButton = Instance.new("TextButton", frame)
+toggleButton.Size = UDim2.new(1, -20, 0, 35)
+toggleButton.Position = UDim2.new(0, 10, 1, -90)
+toggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+toggleButton.Text = "[   ] Don't Show Again!"
+toggleButton.TextSize = 16
+toggleButton.Font = Enum.Font.SourceSans
+toggleButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+
+local toggleCorner = Instance.new("UICorner", toggleButton)
+toggleCorner.CornerRadius = UDim.new(0, 5)
+
+local fileID = "new91928"
+
+if isfile(fileID) then
+    gui:Destroy()
+end
+
+okButton.MouseButton1Click:Connect(function()
+    local tween = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.7, 0, 0, 0)})
+    tween:Play()
+    tween.Completed:Connect(function()
+        gui:Destroy()
+    end)
+end)
+
+toggleButton.MouseButton1Click:Connect(function()
+    if isfile(fileID) then
+        delfile(fileID)
+        toggleButton.Text = "[   ] Don't Show Again!"
+    else
+        writefile(fileID, "")
+        toggleButton.Text = "[✓] Don't Show Again!"
+    end
+end)
+
+pcall(function()
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+end)
+
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 
@@ -16,6 +116,10 @@ local function onDescendantAdded(v)
     if not isPlayerCharacter(v) then
         if v:IsA("BasePart") then
             pcall(function() v.Material = Enum.Material.SmoothPlastic end)
+        elseif v:IsA("Model") then
+            pcall(function() v.LevelOfDetail = Enum.ModelLevelOfDetail.Automatic end)
+        elseif v:IsA("MeshPart") then
+            pcall(function() v.RenderFidelity = Enum.RenderFidelity.Automatic end)
         elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("ParticleEmitter") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles") then
             task.delay(0.1, function()
                 if v.Parent then
@@ -46,7 +150,7 @@ for _, obj in pairs(game.Workspace:GetDescendants()) do
         "string", "monitor", "policetrim", "4blocks", "pillars", "tri", 
         "lawnlightnew", "freewayangle", "hairnails", "newround", "centertable", "fake", 
         "cubdoors", "paperbell", "church", "fencedrone", "communitysignsmall", "trashcanbig", 
-        "posts", "dirt", "yatchtnew", "green", "tirerack", "busstop", "snowmountain", 
+        "posts", "yatchtnew", "green", "tirerack", "busstop", "snowmountain", 
         "garbagecan", "ripdone", "cemetery", "megalight", "1111", "cone", "solorpanels", 
         "campfire", "001_campfires", "plantdecimate", "yard", "bush", "wood", "blanket", 
         "dresser", "poles2x3", "dark", "heart", "sugar", "firedoor", "cube.007", "fakelight", 
@@ -63,7 +167,7 @@ end
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 local TextButton = Instance.new("TextButton", ScreenGui)
 
-TextButton.Size = UDim2.new(0, 400, 0, 70)
+TextButton.Size = UDim2.new(0, 400, 0, 100)
 TextButton.Position = UDim2.new(0.5, -200, 0, 10)
 TextButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -101,7 +205,7 @@ end
 
 TextButton.Text = "Deleted MeshPart > 0.3 Size: " .. countSize ..
                  "\nDeleted MeshPart Can't Collide: " .. countCollide ..
-                 "\nClick Here To Close\n Wait for it to finish rendering!\nV0.3 "
+                 "\nClick Here To Close\n Wait for it to finish rendering!"
 
 TextButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
@@ -192,12 +296,12 @@ player.CharacterAdded:Connect(function() hrp = updateHRP() end)
 
 local hiddenParts = {}
 local activeParts = {}
-local viewDistance = 125
-local checkInterval = 0.25
+local viewDistance = 100
+local checkInterval = 0.3
 
 local function hidePart(part)
     if (part:IsA("BasePart") or part:IsA("MeshPart")) and not part:GetAttribute("Hidden") then
-        if part.Size.Magnitude >= 125 then return end
+        if part.Size.Magnitude >= 100 then return end
 
         part:SetAttribute("Hidden", true)
         part:SetAttribute("OriginalTransparency", part.Transparency)
@@ -225,6 +329,7 @@ local RunService = game:GetService("RunService")
 local lastCheck = 0
 
 RunService.Heartbeat:Connect(function(deltaTime)
+task.wait(1)
     if hrp then
         local cf = hrp.Position
         lastCheck = lastCheck + deltaTime
@@ -261,29 +366,37 @@ local Player = Players.LocalPlayer
 local ScreenGui = Instance.new("ScreenGui", Player:FindFirstChildOfClass("PlayerGui"))
 ScreenGui.ResetOnSpawn = false
 
-local TextLabel = Instance.new("TextLabel", ScreenGui)
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 150, 0, 50)
+Frame.Position = UDim2.new(0, 10, 0, 10)
+Frame.BackgroundTransparency = 0.5
+Frame.BackgroundColor3 = Color3.new(0, 0, 0)
 
-TextLabel.Size = UDim2.new(0, 250, 0, 70)
-TextLabel.Position = UDim2.new(0, 10, 0, 10)
-TextLabel.BackgroundTransparency = 0.5
-TextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+local TextLabel = Instance.new("TextLabel", Frame)
+TextLabel.Size = UDim2.new(1, 0, 1, 0)
+TextLabel.BackgroundTransparency = 1
 TextLabel.TextColor3 = Color3.new(1, 1, 1)
 TextLabel.TextSize = 18
 TextLabel.Font = Enum.Font.SourceSansBold
-TextLabel.Text = "FPS:999999999\nHI: 99999999999\nLow: 9999999999"
+TextLabel.Text = "FPS: 0\nHI: 0\nAvg: 0"
 
 local fps = 0
 local maxFPS = 0
-local minFPS = math.huge
+local totalFPS = 0
+local frameCount = 0
 
 RunService.RenderStepped:Connect(function()
     fps = fps + 1
 end)
 
 while true do
-    TextLabel.Text = "FPS: " .. fps .. "\nHI: " .. maxFPS .. "\nLow: " .. minFPS
     if fps > maxFPS then maxFPS = fps end
-    if fps < minFPS then minFPS = fps end
+    totalFPS = totalFPS + fps
+    frameCount = frameCount + 1
+    local avgFPS = math.floor(totalFPS / frameCount)
+
+    TextLabel.Text = "FPS: " .. fps .. "\nHI: " .. maxFPS .. "\nAvg: " .. avgFPS
+
     fps = 0
     wait(1)
 end
